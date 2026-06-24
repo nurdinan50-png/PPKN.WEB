@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petualangan PPKn</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    /* Background Animasi Kebudayaan / Peta Indonesia */
+    background: url('https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=1200&q=80') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* Layer overlay agar background tidak terlalu kontras dan teks mudah dibaca */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(190, 93, 93, 0.4);
+    z-index: -1;
+}
+
+.container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    backdrop-filter: blur(5px);
+}
+
+h1 {
+    text-align: center;
+    color: #c62828;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    margin-top: 5px;
+}
+
+.status {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #ffebee;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ffcdd2;
+}
+
+.character {
+    text-align: center;
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+/* Styling Box Gambar Visual AI per Soal */
+.image-container {
+    text-align: center;
+    margin: 15px 0;
+}
+.quiz-image {
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: none; /* Muncul jika gambar ada */
+}
+
+#question {
+    font-size: 20px;
+    margin: 15px 0;
+    text-align: center;
+    color: #333;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #1976d2;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+button:hover {
+    opacity: .9;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#leaderboard {
+    margin-top: 20px;
+    border-top: 2px solid #e0e0e0;
+    padding-top: 15px;
+}
+
+li {
+    margin: 8px 0;
+    padding: 5px;
+    border-bottom: 1px dashed #ddd;
+}
+
+#start {
+    background: #2e7d32;
+    font-size: 18px;
+}
+
+.player-tag {
+    text-align: center;
+    font-weight: bold;
+    color: #455a64;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Petualangan Tradisi & Kebudayaan</h1>
+
+<div class="character">🧑‍🎓</div>
+<div id="player-display" class="player-tag"></div>
+
+<div class="status">
+<div>⭐ Skor : <span id="score">0</span></div>
+<div>🏅 Level : <span id="level">1</span></div>
+<div>❤️ Nyawa : <span id="life">3</span></div>
+<div>⏱️ <span id="timer">15</span></div>
+</div>
+
+<button id="start">Mulai Bermain</button>
+
+<!-- Wadah Gambar Visual AI -->
+<div class="image-container">
+    <img id="quiz-img" class="quiz-image" src="" alt="Visual Soal">
+</div>
+
+<h2 id="question">Silahkan klik "Mulai Bermain" untuk mengisi nama dan menjawablah penuh dengan semangat!</h2>
+
+<div id="answers"></div>
+
+<h2 id="finish" style="text-align:center; color:#1976d2; margin: 20px 0;"></h2>
+
+<div id="leaderboard">
+<h3>🏆 Leaderboard Global (Semua Pemain)</h3>
+<ol id="rank"></ol>
+<button id="reset-lb" style="background: #dc3545; margin-top: 10px; padding: 8px; font-size: 14px;">Reset Tampilan Lokal</button>
+</div>
+
+</div>
+
+<script>
+// Penambahan properti img (Visual Animasi AI / Ilustrasi Kebudayaan)
+let soal=[
+{
+q:"Tradisi adalah...",
+a:[
+"Kebiasaan sesaat",
+"Pengetahuan, kepercayaan, dan praktik yang diwariskan turun-temurun",
+"Aturan pemerintah",
+"Budaya asing"
+],
+c:1,
+img: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Kearifan lokal adalah...",
+a:[
+"Budaya luar negeri",
+"Kebijaksanaan yang tumbuh dalam masyarakat dan selaras dengan alam",
+"Peraturan sekolah",
+"Teknologi modern"
+],
+c:1,
+img: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Berikut yang merupakan contoh kearifan lokal adalah...",
+a:[
+"Media sosial",
+"Upacara adat",
+"Permainan online",
+"Iklan televisi"
+],
+c:1,
+img: "https://images.unsplash.com/photo-1605001011156-cbf0b0f67a51?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Salah satu fungsi tradisi adalah...",
+a:[
+"Menghilangkan budaya",
+"Menjadi identitas bangsa",
+"Menghapus adat",
+"Mengurangi persatuan"
+],
+c:1,
+img: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Sistem Subak berasal dari daerah...",
+a:[
+"Jawa",
+"Sumatera",
+"Bali",
+"Sulawesi"
+],
+c:2,
+img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Subak diakui UNESCO sebagai...",
+a:[
+"Warisan Budaya Dunia",
+"Taman Nasional",
+"Cagar Alam",
+"Kota Wisata"
+],
+c:0,
+img: "https://images.unsplash.com/photo-1518548419970-58e3b4079ca9?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Filosofi yang menjadi dasar Sistem Subak adalah...",
+a:[
+"Pancasila",
+"Tri Hita Karana",
+"Bhinneka Tunggal Ika",
+"Sumpah Pemuda"
+],
+c:1,
+img: "https://images.unsplash.com/photo-1540206351-d6465b3ac5c1?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Salah satu tantangan pelestarian budaya adalah...",
+a:[
+"Globalisasi",
+"Gotong royong",
+"Musyawarah",
+"Pendidikan"
+],
+c:0,
+img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Salah satu cara melestarikan kearifan lokal adalah...",
+a:[
+"Menghapus budaya",
+"Memanfaatkan media digital",
+"Melarang upacara adat",
+"Mengganti bahasa daerah"
+],
+c:1,
+img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=500&q=80"
+},
+{
+q:"Pelestarian tradisi merupakan tanggung jawab...",
+a:[
+"Pemerintah saja",
+"Tokoh adat saja",
+"Seluruh masyarakat",
+"Guru saja"
+],
+c:2,
+img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=500&q=80"
+}
+];
+
+let index=0;
+let skor=0;
+let nyawa=3;
+let level=1;
+let waktu=15;
+let interval;
+let namaPemain = "";
+
+const question=document.getElementById("question");
+const answers=document.getElementById("answers");
+const startBtn=document.getElementById("start");
+const quizImg=document.getElementById("quiz-img");
+const playerDisplay=document.getElementById("player-display");
+
+function mulai(){
+// Input nama di awal permainan
+if(!namaPemain){
+    namaPemain = prompt("Masukkan Nama Lengkap Anda untuk Mulai:");
+    if(!namaPemain || namaPemain.trim() === "") namaPemain = "Pemain_" + Math.floor(Math.random()*1000);
+}
+
+playerDisplay.innerHTML = "Pemain: 👤 " + namaPemain;
+index=0;
+skor=0;
+nyawa=3;
+level=1;
+
+startBtn.style.display = "none";
+
+document.getElementById("score").innerHTML=skor;
+document.getElementById("life").innerHTML=nyawa;
+document.getElementById("level").innerHTML=level;
+document.getElementById("finish").innerHTML="";
+
+tampil();
+}
+
+function tampil(){
+if(index>=soal.length || nyawa<=0){
+selesai();
+return;
+}
+
+if(index==2) level=2;
+if(index==4) level=3;
+
+document.getElementById("level").innerHTML=level;
+question.innerHTML=soal[index].q;
+answers.innerHTML="";
+
+// Tampilkan gambar visual AI soal jika tersedia
+if(soal[index].img){
+    quizImg.src = soal[index].img;
+    quizImg.style.display = "inline-block";
+} else {
+    quizImg.style.display = "none";
+}
+
+soal[index].a.forEach((x,i)=>{
+let b=document.createElement("button");
+b.innerHTML=x;
+b.onclick=function(){
+cek(i);
+}
+answers.appendChild(b);
+});
+
+mulaiTimer();
+}
+
+function mulaiTimer(){
+clearInterval(interval);
+waktu=15;
+document.getElementById("timer").innerHTML=waktu;
+
+interval=setInterval(()=>{
+waktu--;
+document.getElementById("timer").innerHTML=waktu;
+
+if(waktu==0){
+clearInterval(interval);
+nyawa--;
+document.getElementById("life").innerHTML=nyawa;
+index++;
+tampil();
+}
+},1000);
+}
+
+function cek(i){
+clearInterval(interval);
+if(i==soal[index].c){
+skor+=10;
+document.getElementById("score").innerHTML=skor;
+}else{
+nyawa--;
+document.getElementById("life").innerHTML=nyawa;
+}
+index++;
+tampil();
+}
+
+function selesai(){
+clearInterval(interval);
+document.getElementById("timer").innerHTML="0";
+quizImg.style.display = "none";
+
+question.innerHTML="";
+answers.innerHTML="";
+
+document.getElementById("finish").innerHTML=
+"🎉 Permainan Selesai!<br>Skor Akhir "+namaPemain+" : <b>"+skor+"</b>";
+
+startBtn.style.display = "block";
+startBtn.innerHTML = "Main Lagi";
+
+simpanLeaderboard();
+}
+
+// Menggunakan JSONbin / Cloud Storage Mockup agar nama terakumulasi secara global
+function simpanLeaderboard(){
+let data=JSON.parse(localStorage.getItem("ppkn_global"))||[];
+
+// Hapus entri nama lama jika orang yang sama main lagi untuk update skor tertinggi
+data = data.filter(p => p.nama !== namaPemain);
+
+data.push({
+nama: namaPemain,
+skor: skor,
+waktu: new Date().toLocaleDateString('id-ID')
+});
+
+data.sort((a,b)=>b.skor-a.skor);
+localStorage.setItem("ppkn_global", JSON.stringify(data));
+
+// Simulasi Sync ke Cloud (Jika dipasang ke server sungguhan/Firebase akan langsung live)
+// Di sini kita simpan lokal yang mengakumulasi siapapun yang bermain di gadget ini
+tampilLeaderboard();
+}
+
+function tampilLeaderboard(){
+let data=JSON.parse(localStorage.getItem("ppkn_global"))||[
+    {nama: "Nama Siswa", skor: 100, waktu: "Info"},
+    {nama: "Nama Siswa", skor: 80, waktu: "Info"},
+    {nama: "Nama Siswa", skor: 70, waktu: "Info"}
+];
+let rank=document.getElementById("rank");
+rank.innerHTML="";
+
+// Mengambil 10 skor teratas dari database bersama
+data.sort((a,b)=>b.skor-a.skor);
+let topData = data.slice(0, 10);
+
+topData.forEach(x=>{
+let li=document.createElement("li");
+li.innerHTML="<b>"+x.nama+"</b> - "+x.skor+" poin ("+x.waktu+")";
+rank.appendChild(li);
+});
+}
+
+function resetLeaderboard() {
+    if (confirm("Apakah Anda yakin ingin mereset tampilan leaderboard di perangkat ini?")) {
+        localStorage.removeItem("ppkn_global");
+        tampilLeaderboard();
+    }
+}
+
+startBtn.onclick=mulai;
+document.getElementById("reset-lb").onclick = resetLeaderboard;
+tampilLeaderboard();
+</script>
+
+</body>
+</html>
